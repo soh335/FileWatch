@@ -19,7 +19,7 @@ import FileWatch
 
 let filewatch = try! FileWatch(paths: ["/path/to/dir"],  createFlag: [.UseCFTypes, .FileEvents], runLoop: NSRunLoop.currentRunLoop(), latency: 3.0, eventHandler: { event in
     if event.flag.contains(.ItemIsFile) {
-      debugPrint(event)
+      debugPrint(event.path)
     }
 })
 ```
