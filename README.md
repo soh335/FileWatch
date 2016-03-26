@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/soh335/FileWatch.svg?branch=master)](https://travis-ci.org/soh335/FileWatch)
+
 # FileWatch
 
 Simple FSEvent wrapper for Swift
