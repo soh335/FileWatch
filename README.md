@@ -2,7 +2,7 @@
 
 # FileWatch
 
-Simple FSEvent wrapper for Swift
+Simple FSEvents wrapper for Swift
 
 ## INSTALL
 
