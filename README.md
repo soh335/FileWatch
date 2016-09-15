@@ -8,7 +8,7 @@ Simple FSEvents wrapper for Swift
 
 ### CARTHAGE
 
-* Add ```github "soh335/FileWatch" "master"``` to your Cartfile.
+* Add ```github "soh335/FileWatch"``` to your Cartfile.
 * Run ```carthage update```.
 * Add FileWatch.framework to Embedded Binaries.
 
