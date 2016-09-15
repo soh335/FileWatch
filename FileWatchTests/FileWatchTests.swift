@@ -15,29 +15,29 @@ class FileWatchTests: XCTestCase {
     
     func testInitCreateFlag() {
         do {
-            let _ = try FileWatch(paths: [""], createFlag: [], runLoop: NSRunLoop.currentRunLoop(), latency: 1, eventHandler: { _ in })
+            let _ = try FileWatch(paths: [""], createFlag: [], runLoop: RunLoop.current, latency: 1, eventHandler: { _ in })
         } catch let e as FileWatch.Error {
-            XCTAssertEqual(e, FileWatch.Error.NotContainUseCFTypes)
+            XCTAssertEqual(e, FileWatch.Error.notContainUseCFTypes)
         } catch {
             XCTFail()
         }
     }
     
     func testFileCreate() {
-        let ex = self.expectationWithDescription("")
-        let filename = String(format: "%@_%@", NSProcessInfo.processInfo().globallyUniqueString, "file.txt")
-        let tmpfile = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent(filename)
+        let ex = self.expectation(description: "")
+        let filename = String(format: "%@_%@", ProcessInfo.processInfo.globallyUniqueString, "file.txt")
+        let tmpfile = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(filename)
         debugPrint(tmpfile)
         
         defer {
-            try! NSFileManager.defaultManager().removeItemAtURL(tmpfile)
+            try! FileManager.default.removeItem(at: tmpfile)
         }
         
-        let filewatch = try! FileWatch(paths: [(tmpfile.path! as NSString).stringByDeletingLastPathComponent], createFlag: [.UseCFTypes, .FileEvents], runLoop: NSRunLoop.currentRunLoop(), latency: 3.0, eventHandler: { event in
-            if (event.path as NSString).lastPathComponent == (tmpfile.path! as NSString).lastPathComponent {
+        let filewatch = try! FileWatch(paths: [(tmpfile.path as NSString).deletingLastPathComponent], createFlag: [.UseCFTypes, .FileEvents], runLoop: RunLoop.current, latency: 3.0, eventHandler: { event in
+            if (event.path as NSString).lastPathComponent == (tmpfile.path as NSString).lastPathComponent {
                 XCTAssertEqual(
-                    try! NSString(contentsOfFile: event.path, encoding: NSUTF8StringEncoding),
-                    try! NSString(contentsOfFile: tmpfile.path!, encoding: NSUTF8StringEncoding)
+                    try! String(contentsOfFile: event.path, encoding: String.Encoding.utf8),
+                    try! String(contentsOfFile: tmpfile.path, encoding: String.Encoding.utf8)
                 )
                 XCTAssert(event.flag.contains(.ItemIsFile))
                 XCTAssert(!event.flag.contains(.ItemIsDir))
@@ -46,11 +46,11 @@ class FileWatchTests: XCTestCase {
             }
         })
         
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC)), dispatch_get_main_queue(), {
-            try! "aaa".writeToFile(tmpfile.path!, atomically: false, encoding: NSUTF8StringEncoding)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC)) / Double(NSEC_PER_SEC), execute: {
+            try! "aaa".write(toFile: tmpfile.path, atomically: false, encoding: String.Encoding.utf8)
         })
         
-        self.waitForExpectationsWithTimeout(10, handler: nil)
+        self.waitForExpectations(timeout: 10, handler: nil)
     }
     
 }
