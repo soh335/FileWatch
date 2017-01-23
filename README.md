@@ -17,7 +17,7 @@ Simple FSEvents wrapper for Swift
 ```swift
 import FileWatch
 
-let filewatch = try! FileWatch(paths: ["/path/to/dir"],  createFlag: [.UseCFTypes, .FileEvents], runLoop: NSRunLoop.currentRunLoop(), latency: 3.0, eventHandler: { event in
+let filewatch = try! FileWatch(paths: ["/path/to/dir"],  createFlag: [.UseCFTypes, .FileEvents], runLoop: RunLoop.current, latency: 3.0, eventHandler: { event in
     if event.flag.contains(.ItemIsFile) {
       debugPrint(event.path)
     }
