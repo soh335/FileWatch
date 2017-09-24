@@ -135,7 +135,7 @@ public class FileWatch {
     }
 }
 
-fileprivate func streamCallback(_ streamRef: ConstFSEventStreamRef, _ clientCallBackInfo: UnsafeMutableRawPointer?, _ numEvents: Int, _ eventPaths: UnsafeMutableRawPointer, _ eventFlags: UnsafePointer<FSEventStreamEventFlags>, _ eventIds: UnsafePointer<FSEventStreamEventId>) -> Void {
+fileprivate func streamCallback(streamRef: ConstFSEventStreamRef, clientCallBackInfo: UnsafeMutableRawPointer?, numEvents: Int, eventPaths: UnsafeMutableRawPointer, eventFlags: UnsafePointer<FSEventStreamEventFlags>, eventIds: UnsafePointer<FSEventStreamEventId>) -> Void {
     let `self` = unsafeBitCast(clientCallBackInfo, to: FileWatch.self)
     guard let eventPathArray = unsafeBitCast(eventPaths, to: NSArray.self) as? [String] else {
         return
