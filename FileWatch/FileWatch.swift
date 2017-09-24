@@ -111,7 +111,7 @@ public class FileWatch {
             throw Error.notContainUseCFTypes
         }
         
-        guard let eventStream = FSEventStreamCreate(kCFAllocatorDefault, FileWatch.StreamCallback, &ctx, paths as CFArray, FSEventStreamEventId(kFSEventStreamEventIdSinceNow), latency, createFlag.rawValue) else {
+        guard let eventStream = FSEventStreamCreate(kCFAllocatorDefault, streamCallback, &ctx, paths as CFArray, FSEventStreamEventId(kFSEventStreamEventIdSinceNow), latency, createFlag.rawValue) else {
             throw Error.streamCreateFailed
         }
         
@@ -133,23 +133,22 @@ public class FileWatch {
         self.eventStream = nil
 
     }
-    
-    // http://stackoverflow.com/questions/33260808/swift-proper-use-of-cfnotificationcenteraddobserver-w-callback
-    private static let StreamCallback: FSEventStreamCallback = {(streamRef: ConstFSEventStreamRef, clientCallBackInfo: UnsafeMutableRawPointer?, numEvents: Int, eventPaths: UnsafeMutableRawPointer, eventFlags: UnsafePointer<FSEventStreamEventFlags>?, eventIds: UnsafePointer<FSEventStreamEventId>?) -> Void in
-        
-        let `self` = unsafeBitCast(clientCallBackInfo, to: FileWatch.self)
-        guard let eventPathArray = unsafeBitCast(eventPaths, to: NSArray.self) as? [String] else {
-            return
-        }
-        var eventFlagArray = Array(UnsafeBufferPointer(start: eventFlags, count: numEvents))
-        var eventIdArray   = Array(UnsafeBufferPointer(start: eventIds, count: numEvents))
-        
-        for i in 0..<numEvents {
-            let path = eventPathArray[i]
-            let flag = eventFlagArray[i]
-            let eventID = eventIdArray[i]
-            let event = Event(path: path, flag: EventFlag(rawValue: flag), eventID: eventID)
-            self.eventHandler(event)
-        }
+}
+
+fileprivate func streamCallback(streamRef: ConstFSEventStreamRef, clientCallBackInfo: UnsafeMutableRawPointer?, numEvents: Int, eventPaths: UnsafeMutableRawPointer, eventFlags: UnsafePointer<FSEventStreamEventFlags>, eventIds: UnsafePointer<FSEventStreamEventId>) -> Void {
+    let `self` = unsafeBitCast(clientCallBackInfo, to: FileWatch.self)
+    guard let eventPathArray = unsafeBitCast(eventPaths, to: NSArray.self) as? [String] else {
+        return
+    }
+    var eventFlagArray = Array(UnsafeBufferPointer(start: eventFlags, count: numEvents))
+    var eventIdArray   = Array(UnsafeBufferPointer(start: eventIds, count: numEvents))
+
+    for i in 0..<numEvents {
+        let path = eventPathArray[i]
+        let flag = eventFlagArray[i]
+        let eventID = eventIdArray[i]
+        let event = FileWatch.Event(path: path, flag: FileWatch.EventFlag(rawValue: flag), eventID: eventID)
+        self.eventHandler(event)
     }
 }
+
